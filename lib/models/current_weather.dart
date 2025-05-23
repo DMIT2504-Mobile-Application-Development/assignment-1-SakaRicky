@@ -1,68 +1,68 @@
 
 class CurrentWeather {
-  String city  = "";
-  String description   = "";
-  double currentTemp   = 0;
-  DateTime currentTime   = DateTime.now();
-  DateTime sunrise = DateTime.now();
-  DateTime sunset  = DateTime.now();
+  String _city  = "";
+  String _description   = "";
+  double _currentTemp   = 0;
+  DateTime _currentTime   = DateTime.now();
+  DateTime _sunrise = DateTime.now();
+  DateTime _sunset  = DateTime.now();
 
-  String get aCity => city;
-  String get getDescription => description;
-  double get getCurrentTemp => currentTemp;
-  DateTime get getCurrentTime => currentTime;
-  DateTime get getSunrise => sunrise;
-  DateTime get getSunset => sunset;
+  String get city => _city;
+  String get description => _description;
+  double get currentTemp => _currentTemp;
+  DateTime get currentTime => _currentTime;
+  DateTime get sunrise => _sunrise;
+  DateTime get sunset => _sunset;
 
-  set setCity(String newCity) {
+  set city(String newCity) {
       if(newCity.trim() == "" ){
-        throw Exception("City can't be an empty string");
+        throw Exception("City cannot be empty");
       } else {
-        city = newCity;
+        _city = newCity;
       }
   }
 
-  set setDescription(String newDescription) {
+  set description(String newDescription) {
     if(newDescription.trim() == "" ){
-      throw Exception("Description can't be an empty string");
+      throw Exception("Description cannot be empty");
     } else {
-      description = newDescription;
+      _description = newDescription;
     }
   }
 
-  set setTemperature(double newTemp) {
-    if(newTemp < -100 && newTemp > 100){
+  set currentTemp(double newTemp) {
+    if(newTemp < -100 || newTemp > 100){
       throw Exception("Temperature must be between -100 and 100");
     } else {
-      currentTemp = newTemp;
+      _currentTemp = newTemp;
     }
   }
 
-  set setCurrentTime(DateTime newTime) {
+  set currentTime(DateTime newTime) {
     if(newTime.isAfter(DateTime.now())){
       throw Exception("Current time cannot be in the future");
     } else {
-      currentTime = newTime;
+      _currentTime = newTime;
     }
   }
 
-  set setSunrise(DateTime newSunrise) {
-    if(!areOnSameDay(newSunrise, currentTime)){
+  set sunrise(DateTime newSunrise) {
+    if(!areOnSameDay(newSunrise, _currentTime)){
       throw Exception("Sunrise must be on the same day as current time");
-    } else if(newSunrise.isAfter(sunset)) {
+    } else if(newSunrise.isAfter(_sunset)) {
       throw Exception("Sunrise cannot be after sunset");
     } else {
-      sunrise = newSunrise;
+      _sunrise = newSunrise;
     }
   }
 
-  set setSunset(DateTime newSunset) {
-    if(!areOnSameDay(newSunset, currentTime)){
-      throw Exception("Sunrise must be on the same day as current time");
-    } else if(newSunset.isBefore(sunrise)) {
-      throw Exception("Sunrise cannot be after sunset");
+  set sunset(DateTime newSunset) {
+    if(!areOnSameDay(newSunset, _currentTime)){
+      throw Exception("Sunset must be on the same day as current time");
+    } else if(newSunset.isBefore(_sunrise)) {
+      throw Exception("Sunset cannot be before sunrise");
     } else {
-      sunset = newSunset;
+      _sunset = newSunset;
     }
   }
 
@@ -72,21 +72,26 @@ class CurrentWeather {
         dateTime1.day == dateTime2.day;
   }
 
-  CurrentWeather({required this.city,
-    required this.description,
-    required this.currentTime,
-    required this.currentTemp,
-    required this.sunrise,
-    required this.sunset
-  });
+  CurrentWeather({required String city,
+    required String description,
+    required DateTime currentTime,
+    required double currentTemp,
+    required DateTime sunrise,
+    required DateTime sunset
+  }): _city = city,
+  _description = description,
+  _currentTime =currentTime,
+  _currentTemp = currentTemp,
+  _sunrise = sunrise,
+  _sunset = sunset;
 
   factory CurrentWeather.fromOpenWeatherData(Map<String,dynamic> weatherJSONData) {
     String city = weatherJSONData["name"];
     String description = weatherJSONData["weather"][0]["description"];
-    DateTime currentTime = DateTime(weatherJSONData["dt"]);
+    DateTime currentTime = DateTime.fromMillisecondsSinceEpoch((weatherJSONData["dt"] * 1000).toInt());
     double temp = weatherJSONData["main"]["temp"];
-    DateTime sunrise = DateTime(weatherJSONData["sys"]["sunrise"]);
-    DateTime sunset = DateTime(weatherJSONData["sys"]["sunset"]);
+    DateTime sunrise = DateTime.fromMillisecondsSinceEpoch((weatherJSONData["sys"]["sunrise"] * 1000).toInt());
+    DateTime sunset = DateTime.fromMillisecondsSinceEpoch((weatherJSONData["sys"]["sunset"]* 1000).toInt());
 
     return CurrentWeather(
       city: city,
